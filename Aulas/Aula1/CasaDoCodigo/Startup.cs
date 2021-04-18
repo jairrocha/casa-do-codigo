@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CasaDoCodigo.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -23,18 +24,25 @@ namespace CasaDoCodigo
         public void ConfigureServices(IServiceCollection services)
         {
             /*
-             * Esse método serve para adicionar o serviços
+             * Esse método serve para adicionar o serviços (Injeção de depências)
              */
 
             services.AddMvc();
 
             //Obtendo connection string definida no 'appsettings.json'
-            string connectionString = 
+            string connectionString =
                             Configuration.GetConnectionString("Default");
 
+
             //Adicionando o serviço de context a aplicação
-            services.AddDbContext<ApplicationContext>(options => 
+            services.AddDbContext<ApplicationContext>(options =>
                      options.UseSqlServer(connectionString));
+
+
+            services.AddTransient<IDataService, DataService>();
+
+            services.AddTransient<IProdutoRepository, ProdutoRepository>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,23 +75,11 @@ namespace CasaDoCodigo
 
             /*
             * O método abaixo garante que o banco esteja criado, ou seja 
-            * se o banco não existir o método criar o BD com base nos 
+            * se o banco não existir o método cria o BD com base nos 
             * arquivos de Migrations.
             */
-            
-            serviceProvider
-                .GetService<ApplicationContext>()
-                .Database
-                .Migrate();
 
-            /* O método abaixo tbm cria o BD, porém não é remomendávável
-             * devído não utilizar o arquivo de migrations, ou seja, e se
-             * baseia no modelo. O problema disso é uma vez que utiliza ele,
-             * vc não pode aplicar nenhuma migração ao seu projeto. Utilize
-             * o '.Migrate()' pois ele sim utiliza os arquivo de migração.
-             */
-
-            //.EnsureCreated(); 
+            serviceProvider.GetService<IDataService>().InicializaDB();
         }
     }
 }
