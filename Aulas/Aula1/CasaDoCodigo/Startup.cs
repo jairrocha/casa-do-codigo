@@ -42,6 +42,14 @@ namespace CasaDoCodigo
             services.AddTransient<IDataService, DataService>();
 
             services.AddTransient<IProdutoRepository, ProdutoRepository>();
+            services.AddTransient<IPedidoRepository, PedidoRepository>();
+            services.AddTransient<ICadastroRepository, CadastroRepository>();
+            services.AddTransient<IItemPedidoRepository, ItemPedidoRepository>();
+
+            //Adicionando o serviço de seção 
+            services.AddDistributedMemoryCache();
+            services.AddSession();
+            
 
         }
 
@@ -65,12 +73,13 @@ namespace CasaDoCodigo
             }
 
             app.UseStaticFiles();
+            app.UseSession();
 
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Pedido}/{action=Carrossel}/{id?}");
+                    template: "{controller=Pedido}/{action=Carrossel}/{codigo?}");
             });
 
             /*

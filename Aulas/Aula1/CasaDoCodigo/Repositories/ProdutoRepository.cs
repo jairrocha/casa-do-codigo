@@ -1,4 +1,5 @@
 ﻿using CasaDoCodigo.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,14 +7,10 @@ using System.Threading.Tasks;
 
 namespace CasaDoCodigo.Repositories
 {
-    public class ProdutoRepository : IProdutoRepository
+    public class ProdutoRepository : BaseRepository<Produto>, IProdutoRepository
     {
-
-        private readonly ApplicationContext contexto;
-
-        public ProdutoRepository(ApplicationContext contexto)
+        public ProdutoRepository(ApplicationContext contexto) : base(contexto)
         {
-            this.contexto = contexto;
         }
 
         public IList<Produto> GetProdutos()
@@ -25,9 +22,14 @@ namespace CasaDoCodigo.Repositories
         {
             foreach (var livro in livros)
             {
-                contexto.Set<Produto>()
-                        .Add(new Produto(livro.Codigo, livro.Nome,
-                                                     livro.Preco));
+                if (!dbSet.Where(p => p.Codigo == livro.Codigo).Any())
+                {
+
+
+                    contexto.Set<Produto>()
+                            .Add(new Produto(livro.Codigo, livro.Nome,
+                                                         livro.Preco));
+                }
 
             }
 
