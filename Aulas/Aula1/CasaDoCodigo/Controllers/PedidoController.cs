@@ -23,7 +23,7 @@ namespace CasaDoCodigo.Controllers
 
         public IActionResult Carrossel()
         {
-            
+
             return View(produtoRepository.GetProdutos());
         }
         public IActionResult Carrinho(string codigo)
@@ -48,6 +48,11 @@ namespace CasaDoCodigo.Controllers
             return View(pedido);
         }
 
+        [HttpPost]
+        public void UpdateQuantidade([FromBody] ItemPedido itemPedido)
+        {
+
+        }
 
 
     }
