@@ -1,4 +1,5 @@
-﻿
+﻿//import { report } from "process";
+
 class Carrinho {
 
     ClickIncremento(btn) {
@@ -46,6 +47,28 @@ class Carrinho {
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(data)
+        }).done(function (response) {
+
+            //Não indicado, pois atualiza a página toda
+            //location.reload();
+
+            let itemPedido = response.itemPedido;
+            let linhaDoItem = $('[item-id=' + itemPedido.id + ']');
+            linhaDoItem.find('input').val(itemPedido.quantidade);
+            linhaDoItem.find('[subtotal]').html((itemPedido.subtotal).duasCasas());
+
+            let carrinhoViewModel = response.carrinhoViewModel;
+
+            $('[numero-itens]').html('Total: ' + carrinhoViewModel.itens.length + ' itens');
+
+            $('[total]').html((carrinhoViewModel.total).duasCasas());
+
+            if (itemPedido.quantidade == 0) {
+                linhaDoItem.remove();
+            }
+         
+            //debugger;
+
         });
     }
 
@@ -54,3 +77,7 @@ class Carrinho {
 var carrinho = new Carrinho();
 
 
+//formata número
+Number.prototype.duasCasas = function () {
+    return this.toFixed(2).replace('.', ',');
+}

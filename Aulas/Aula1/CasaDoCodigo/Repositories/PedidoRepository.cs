@@ -1,4 +1,5 @@
 ﻿using CasaDoCodigo.Models;
+using CasaDoCodigo.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,16 +13,22 @@ namespace CasaDoCodigo.Repositories
     {
         Pedido GetPedido();
         void AddItem(string codigo);
+        UpdateQuantidadeResponse UpdateQuantidade(ItemPedido itemPedido);
     }
     public class PedidoRepository : BaseRepository<Pedido>, IPedidoRepository
     {
 
-        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IHttpContextAccessor contextAccessor;
+        private readonly IItemPedidoRepository itemPedidoRepository;
 
         public PedidoRepository(ApplicationContext contexto,
-            IHttpContextAccessor contextAccessor) : base(contexto)
+            IHttpContextAccessor contextAccessor,
+            IItemPedidoRepository itemPedidoRepository) 
+                                            : base(contexto)
         {
-            _contextAccessor = contextAccessor;
+            this.contextAccessor = contextAccessor;
+            this.itemPedidoRepository = itemPedidoRepository;
+
         }
 
         public void AddItem(string codigo)
@@ -77,13 +84,42 @@ namespace CasaDoCodigo.Repositories
         /*Metódo para lê o pedido na sessão*/
         private int? GetPedidoId()
         {
-            return _contextAccessor.HttpContext.Session.GetInt32("pedidoId");
+            return contextAccessor.HttpContext.Session.GetInt32("pedidoId");
         }
 
         /*Metódo para gravar o pedido na sessão*/
         private void SetPedidoId(int pedidoId)
         {
-            _contextAccessor.HttpContext.Session.SetInt32("pedidoId", pedidoId);
+            contextAccessor.HttpContext.Session.SetInt32("pedidoId", pedidoId);
+        }
+
+        public UpdateQuantidadeResponse UpdateQuantidade(ItemPedido itemPedido)
+        {
+
+            var itemPedidoDB = itemPedidoRepository
+                                .GetItemPedido(itemPedido.Id);
+
+            if (itemPedidoDB != null)
+            {
+                itemPedidoDB.AtualizaQuantidade(itemPedido.Quantidade);
+
+                if (itemPedido.Quantidade == 0)
+                {
+                    itemPedidoRepository.RemoveItemPedido(itemPedido.Id);
+                }
+
+                contexto.SaveChanges();
+
+                var carrinhoViewModel = new CarrinhoViewModel(
+                    GetPedido().Itens);
+
+                return new UpdateQuantidadeResponse(itemPedidoDB,
+                                carrinhoViewModel);
+
+            }
+
+            throw new ArgumentException("Item pedido não encontrado");
+
         }
     }
 }
