@@ -38,11 +38,11 @@ namespace CasaDoCodigo.Controllers
             }
 
 
-            IList<ItemPedido> items = 
+            IList<ItemPedido> items =
                               pedidoRepository.GetPedido().Itens;
 
             var carrinhoViewModel = new CarrinhoViewModel(items);
-            
+
             return View(carrinhoViewModel);
 
         }
@@ -60,17 +60,26 @@ namespace CasaDoCodigo.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken] //protege de ataque CSRF(Cross-site request forgery)
         public IActionResult Resumo(Cadastro cadastro)
         {
-            var pedido = pedidoRepository.GetPedido();
 
-            return View(pedido);
+            if (ModelState.IsValid)
+            {
+                return View(pedidoRepository.UpdateCadastro(cadastro));
+
+            }
+
+            return RedirectToAction("Cadastro");
+
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken] /*CodMud1> Protegendo método do ajax (o ajax deve enviar token para acessar 
+                                                               'verifique a mudança feita no ajax.') CodMud1>*/
         public UpdateQuantidadeResponse UpdateQuantidade([FromBody] ItemPedido itemPedido)
         {
-           return pedidoRepository.UpdateQuantidade(itemPedido);
+            return pedidoRepository.UpdateQuantidade(itemPedido);
         }
 
 

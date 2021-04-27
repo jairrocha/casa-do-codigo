@@ -42,11 +42,18 @@ class Carrinho {
 
     postQuantidade(data) {
 
+        //CodMud1> Obtendo token
+        let token = $('[name=__RequestVerificationToken]').val();
+        let headers = {};
+        headers['RequestVerificationToken'] = token;
+        //CodMud1/>
+
         $.ajax({
             url: '/Pedido/UpdateQuantidade',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify(data)
+            data: JSON.stringify(data),
+            headers: headers //CodMud1: Enviando token
         }).done(function (response) {
 
             //Não indicado, pois atualiza a página toda

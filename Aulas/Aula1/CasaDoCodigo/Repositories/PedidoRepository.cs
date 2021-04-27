@@ -14,20 +14,24 @@ namespace CasaDoCodigo.Repositories
         Pedido GetPedido();
         void AddItem(string codigo);
         UpdateQuantidadeResponse UpdateQuantidade(ItemPedido itemPedido);
+        Pedido UpdateCadastro(Cadastro cadastro);
     }
     public class PedidoRepository : BaseRepository<Pedido>, IPedidoRepository
     {
 
         private readonly IHttpContextAccessor contextAccessor;
         private readonly IItemPedidoRepository itemPedidoRepository;
+        private readonly ICadastroRepository cadastroRepository;
 
         public PedidoRepository(ApplicationContext contexto,
             IHttpContextAccessor contextAccessor,
-            IItemPedidoRepository itemPedidoRepository) 
+            IItemPedidoRepository itemPedidoRepository,
+            ICadastroRepository cadastroRepository)
                                             : base(contexto)
         {
             this.contextAccessor = contextAccessor;
             this.itemPedidoRepository = itemPedidoRepository;
+            this.cadastroRepository = cadastroRepository;
 
         }
 
@@ -51,7 +55,7 @@ namespace CasaDoCodigo.Repositories
             if (itemPedido == null)
             {
                 itemPedido = new ItemPedido(pedido, produto, 1, produto.Preco);
-                
+
                 contexto.Set<ItemPedido>()
                         .Add(itemPedido);
                 contexto.SaveChanges();
@@ -62,11 +66,14 @@ namespace CasaDoCodigo.Repositories
         public Pedido GetPedido()
         {
             var pedidoId = GetPedidoId();
+
             var pedido = dbSet
                 .Include(p => p.Itens)
-                .ThenInclude(i => i.Produto)
+                    .ThenInclude(i => i.Produto)
+                .Include(p => p.Cadastro)
                 .Where(p => p.Id == pedidoId)
                 .SingleOrDefault();
+
 
             if (pedido == null)
             {
@@ -79,7 +86,7 @@ namespace CasaDoCodigo.Repositories
             return pedido;
         }
 
-    
+
 
         /*Metódo para lê o pedido na sessão*/
         private int? GetPedidoId()
@@ -120,6 +127,13 @@ namespace CasaDoCodigo.Repositories
 
             throw new ArgumentException("Item pedido não encontrado");
 
+        }
+
+        public Pedido UpdateCadastro(Cadastro cadastro)
+        {
+            var pedido = GetPedido();
+            cadastroRepository.Update(pedido.Cadastro.Id, cadastro);
+            return pedido;
         }
     }
 }

@@ -6,6 +6,27 @@
 
 <h3>Meu Carrinho</h3>
 
+
+@{
+
+/*
+
+O form abaixo foi adicionado apenas para que view carrinho possua um token
+o mesmo é utilizado para evitar ataques CSRF(Cross-site request forgery).
+
+o Ajax no arquivo carrinho.js, utiliza esse token para fazer request
+verifique a mudança: 'CodMud1'
+
+
+*/
+
+}
+
+
+<form asp-action="carrinho" method="post">
+</form>
+
+
 <div class="panel panel-default">
     <div class="panel-heading">
 
@@ -41,13 +62,13 @@
                     <div class="input-group">
                         <span class="input-group-btn">
                             <button class="btn btn-default"
-                                onclick="carrinho.ClickDecremento(this)">
+                                    onclick="carrinho.ClickDecremento(this)">
                                 <span class="glyphicon-minus"></span>
                             </button>
                         </span>
                         <input type="text" value="@(item.Quantidade)"
-                               class="form-control text-center" 
-                               onblur="carrinho.updateQuantidade(this)"/>
+                               class="form-control text-center"
+                               onblur="carrinho.updateQuantidade(this)" />
                         <span class="input-group-btn"
                               onclick="carrinho.ClickIncremento(this)">
                             <button class="btn btn-default">
@@ -89,8 +110,18 @@
             <a class="btn btn-success" asp-action="carrossel">
                 Adicionar Produtos
             </a>
-            <a class="btn btn-success" asp-action="cadastro">
+            <a class="btn btn
+     *
+     *
+     * -success" asp-action="cadastro">
                 Preencher cadastro
+
+
+
+
+
+
+
             </a>
         </div>
     </div>
@@ -100,7 +131,7 @@
 {
 
     <script src="~/js/carrinho.js">
-       
+
     </script>
 
 }
